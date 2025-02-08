@@ -1,0 +1,1 @@
+# Apply Federated Learning into Autoencoder and its variants
