@@ -14,7 +14,12 @@ this project is based on :
 4. Create a new folder called **"save_models"** outside the downloaded folder  
   
 ---  
-Run  
+## Run  
+### Train
 ```  
-python main.py --gpu=0  
+python train.py --gpu=0  
+```  
+### Test
+```  
+python test.py --gpu=0  
 ```  
