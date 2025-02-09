@@ -6,7 +6,7 @@ def get_dataset(args):
     the keys are the user index and the values are the corresponding data for
     each of those users.
     """
-
+    """
     if args.dataset == 'CIFAR10':
         data_dir = '../Dataset/CIFAR10/'
         # Composes several transforms together
@@ -24,25 +24,27 @@ def get_dataset(args):
 
         test_dataset = datasets.CIFAR10(data_dir, train=False, download=True,
                                       transform=apply_transform)
-        
-        num_items = int(len(train_dataset)/args.num_users)
-        user_groups, all_data_idxs = {}, [i for i in range(len(train_dataset))]
-        for i in range(args.num_users):
-            user_groups[i] = set(np.random.choice(all_data_idxs, num_items,
-                                                replace=False))
-            all_data_idxs = list(set(all_data_idxs) - user_groups[i])
-
-    elif args.dataset == 'MNIST':
+    """
+    if args.dataset == 'MNIST':
         data_dir = '../Dataset/MNIST/'
 
         apply_transform = transforms.Compose([
             transforms.ToTensor(),
-            transforms.Normalize((0.1307,), (0.3081,))])
+            #transforms.Normalize((0.1307,), (0.3081,))])
+            transforms.Normalize([0.5], [0.5])
+        ])
 
         train_dataset = datasets.MNIST(data_dir, train=True, download=True,
                                        transform=apply_transform)
 
         test_dataset = datasets.MNIST(data_dir, train=False, download=True,
                                       transform=apply_transform)
+        
+    num_items = int(len(train_dataset)/args.num_users)
+    user_groups, all_data_idxs = {}, [i for i in range(len(train_dataset))]
+    for i in range(args.num_users):
+        user_groups[i] = set(np.random.choice(all_data_idxs, num_items,
+                                            replace=False))
+        all_data_idxs = list(set(all_data_idxs) - user_groups[i])
         
     return train_dataset, test_dataset, user_groups

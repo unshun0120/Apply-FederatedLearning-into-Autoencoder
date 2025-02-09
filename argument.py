@@ -13,13 +13,12 @@ def args_parser():
 
     # model something setup
     # Dataset
-    parser.add_argument('--dataset', type=str, default='CIFAR10', help="name of dataset. Default set to use CIFAR10")
+    parser.add_argument('--dataset', type=str, default='MNIST', help="name of dataset. Default set to use CIFAR10")
     # Optimizer
     parser.add_argument('--optimizer', type=str, default='Adam', help="type of optimizer")
     # Learning rate
     parser.add_argument('--lr', type=float, default=0.01, help='learning rate')
     
-
 
     # Federated Learning setup 
     # Epochs

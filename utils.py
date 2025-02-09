@@ -84,17 +84,13 @@ def test_inference(args, model, test_dataset):
 
     with torch.no_grad():
         for _, (images, labels) in enumerate(tqdm(testloader, colour="blue")):
+            images = images.view(images.size(0), -1)
             images, labels = images.to(device), labels.to(device)
 
             # Inference 
-            SNR_TRAIN = torch.randint(0, 28, (images.shape[0], 1)).cuda()
-            s_predicted, s_origin= model(images, SNR_TRAIN)
-            
-            # 計算loss時, predicted和origin的shape要相同, 用填充(padding)的方式讓s_origin和s_predicted相同
-            padding = (0, s_predicted.shape[3] - s_origin.shape[3])  # 只在最後一維填充
-            s_origin = F.pad(s_origin, padding)
+            s_predicted = model(images)
 
-            batch_loss = criterion(s_predicted, s_origin)
+            batch_loss = criterion(s_predicted, images)
             loss += batch_loss.item()
 
             # Prediction
@@ -117,9 +113,10 @@ def test_inference(args, model, test_dataset):
             true_labels = torch.argmax(images, dim=1)  # 假設 s_origin 是 one-hot，形狀為 [2, 32, 32]
             #print(true_labels)
             # 匹配形狀
-            predicted_labels = predicted_labels[:, :, :true_labels.size(2)]  # 確保形狀一致
+            #predicted_labels = predicted_labels[:, :, :true_labels.size(2)]  # 確保形狀一致
 
             # 計算準確率
+            print(predicted_labels, " ", true_labels)
             correct = torch.eq(predicted_labels, true_labels)  # [2, 32, 32] 的布林值張量
             correct_count += correct.sum().item()
             total_count += correct.numel()
