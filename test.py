@@ -28,7 +28,7 @@ if __name__ == '__main__':
     # Test
     AE_FL_model = autoencoder().to(device)
     AE_FL_model.load_state_dict(torch.load('../save_models/Autoencoder_MNIST_GE[1]_LE[1]_B[2].pth', weights_only=True))
-    AE_FL_model.eval()  # 設置模型為評估模式
+    AE_FL_model.eval()  
     testloader = DataLoader(test_dataset, batch_size=32, shuffle=False)
     criterion = nn.MSELoss().to(device)
     reconstruction_error = 0.0

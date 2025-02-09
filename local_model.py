@@ -1,7 +1,6 @@
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
-import torch.nn.functional as F
 from tqdm import tqdm
 
 class DatasetSplit(Dataset):
@@ -56,15 +55,14 @@ class LocalUpdate(object):
             optimizer = torch.optim.Adam(model.parameters(), lr=self.args.lr, weight_decay=1e-4)
         elif self.args.optimizer == 'SGD':
             optimizer = torch.optim.SGD(model.parameters(), lr=self.args.lr, momentum=0.5)
+
         print('\nGlobal Round: {}, {}-th Edge device, Local model ID: {}'.format(global_round+1, curr_user, user_idx))
         for local_epoch in range(self.args.local_ep):
             batch_loss = []
-            # _: batch size
-            for _, (images, labels) in enumerate(tqdm(self.trainloader, desc="Local Round {} ...".format(local_epoch+1))):
+            for _, (images, _) in enumerate(tqdm(self.trainloader, desc="Local Round {} ...".format(local_epoch+1))):
                 # 將(batch_size, channels, height, width)的tensor轉成(batch_size, features)，方便輸入到fully-connected layer
                 images = images.view(images.size(0), -1)
-                images, labels = images.to(self.device), labels.to(self.device)
-                # model.zero_grad() and optimizer.zero_grad() are the same if all model parameters are in that optimizer
+                images = images.to(self.device)
                 model.zero_grad()
 
                 s_predicted = model(images)
@@ -72,25 +70,16 @@ class LocalUpdate(object):
                 loss = self.criterion(s_predicted, images)
                 loss.backward()
                 optimizer.step()
-                
-                # verbose : 是否要顯示進度條, 預設1
-                # verbose = 0 : 不輸出進度條、loss、acc, verbose = 1 : 輸出進度條、loss、acc, verbose = 2 : 輸出loss、acc但不輸出進度條
-                """
-                if self.args.verbose and (batch_idx % 10 == 0):
-                    print('| Global Round : {} | {}-th Local Model {} Epoch : {} | Batch Index : {} | [{}/{} ({:.0f}%)]  Loss: {:.6f}'.format(
-                        global_round, curr_user, user_idx, local_epoch, batch_idx, batch_idx * len(images),
-                        len(self.trainloader.dataset),
-                        100. * batch_idx / len(self.trainloader), loss.item()))
-                """
                 self.logger.add_scalar('loss', loss.item())
                 batch_loss.append(loss.item())
+
             epoch_loss.append(sum(batch_loss)/len(batch_loss))
 
         return model.state_dict(), sum(epoch_loss) / len(epoch_loss)
 
-    def inference(self, idx, model):
+    def inference(self, model):
         """ 
-        Returns the inference accuracy and loss.
+        Returns the inference Reconstructino Loss.
         """
 
         model.eval()

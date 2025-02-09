@@ -78,15 +78,15 @@ if __name__ == '__main__':
 
         loss_avg = sum(local_losses) / len(local_losses)
         train_loss.append(loss_avg)
+
+        # Local model Inference
         inference_loss = []
         global_model.eval()
-        
-        # Local model Inference
         print(f'\nGlobal Round: {format(epoch+1)} - Local model inference ...')
         for c in tqdm(range(args.num_users), colour="yellow"):
             local_model = LocalUpdate(args=args, dataset=train_dataset,
                                       idxs=user_groups[c], logger=logger)
-            loss = local_model.inference(c, model=global_model)
+            loss = local_model.inference(model=global_model)
             inference_loss.append(loss)
             
         print(f'\nAvg Training Stats after {epoch+1} global rounds:')

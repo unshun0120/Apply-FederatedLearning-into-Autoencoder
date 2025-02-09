@@ -7,9 +7,6 @@ def args_parser():
     # environment setup
     # GPU or CPU
     parser.add_argument('--gpu', default=None, help="To use cuda, set to a specific GPU ID. Default set to use CPU.")
-    # verbose, 是否輸出進度條、loss、acc
-    parser.add_argument('--verbose', type=int, default=1, help='whether output progress bar, loss value, accuracy when training')
-
 
     # model something setup
     # Dataset
@@ -18,7 +15,6 @@ def args_parser():
     parser.add_argument('--optimizer', type=str, default='Adam', help="type of optimizer")
     # Learning rate
     parser.add_argument('--lr', type=float, default=0.01, help='learning rate')
-    
 
     # Federated Learning setup 
     # Epochs
@@ -31,9 +27,6 @@ def args_parser():
     parser.add_argument('--local_ep', type=int, default=1, help="the number of local epochs: E")
     # Local model batch size
     parser.add_argument('--local_bs', type=int, default=2, help="local batch size: B")
-
-
-
 
     args = parser.parse_args()
     return args

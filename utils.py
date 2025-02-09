@@ -1,9 +1,5 @@
 import copy
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torch.utils.data import DataLoader
-from tqdm import tqdm
 
 
 def FedAvg(w):
@@ -21,34 +17,6 @@ def FedAvg(w):
 
     return w_avg
 
-def FedLol(w, l):
-    """
-    Returns the Federated Local Loss.
-    """
-    w_lol = copy.deepcopy(w[0])
-    l_lol = copy.deepcopy(l)
-
-    # compute sum of loss
-    l_sum = 0.0
-    for L in range(1, len(l_lol)) : 
-        l_sum += l_lol[L]
-    if l_sum == 0:
-        raise ValueError("Sum of local losses (l_sum) is zero, cannot compute weights.")
-    
-    # compute local loss weight
-    for i in range(1, len(l_lol)) : 
-        l_lol[i] = (l_sum-l_lol[i]) / l_sum
-        l_lol[i] /= (len(l_lol)-1)  # Normalization
-    # allocate local loss to each layer weight
-    
-    for k in w_lol.keys():  
-        for i in range(1, len(w)):  
-            # If this line of code is not added, the following error will occur:
-            # RuntimeError: result type Float can't be cast to the desired output type Long
-            w_lol[k] = w_lol[k].float()  # Ensure w_lol[k] is float
-            w_lol[k] += w[i][k] * l_lol[i]
-    
-    return w_lol
 
 def exp_details(args):
     print('\nExperimental details:')
@@ -66,66 +34,7 @@ def exp_details(args):
     print(f'    Local Batch size   : {args.local_bs}')
     print(f'    Number of users   : {args.num_users}')
     print(f'    Fraction of users  : {args.frac}\n')
-    
-    
-    return
 
-def test_inference(args, model, test_dataset):
-    """ Returns the test accuracy and loss.
-    """
-    
-    model.eval()
-    loss, total, correct = 0.0, 0.0, 0.0
-    total_count, correct_count = 0.0, 0.0
-
-    device = 'cuda' if args.gpu else 'cpu'
-    criterion = nn.MSELoss().to(device)
-    testloader = DataLoader(test_dataset, batch_size=32, shuffle=False)
-
-    with torch.no_grad():
-        for _, (images, labels) in enumerate(tqdm(testloader, colour="blue")):
-            images = images.view(images.size(0), -1)
-            images, labels = images.to(device), labels.to(device)
-
-            # Inference 
-            s_predicted = model(images)
-
-            batch_loss = criterion(s_predicted, images)
-            loss += batch_loss.item()
-
-            # Prediction
-            """
-            _, pred_labels = torch.max(s_predicted, 1)
-            pred_labels = pred_labels.view(-1)
-            
-            correct += torch.sum(torch.eq(s_predicted, s_origin)).item()
-            total += len(s_origin)
-            """
-            # 假設 s_predicted 和 s_origin 已經從模型輸出
-            # s_predicted: [2, 3, 32, 35632]
-            # s_origin: [2, 3, 32, 32]
-
-            # 提取預測類別
-            predicted_labels = torch.argmax(s_predicted, dim=1)  # [2, 32, 35632]
-            #print(predicted_labels)
-
-            # 提取真實類別
-            true_labels = torch.argmax(images, dim=1)  # 假設 s_origin 是 one-hot，形狀為 [2, 32, 32]
-            #print(true_labels)
-            # 匹配形狀
-            #predicted_labels = predicted_labels[:, :, :true_labels.size(2)]  # 確保形狀一致
-
-            # 計算準確率
-            print(predicted_labels, " ", true_labels)
-            correct = torch.eq(predicted_labels, true_labels)  # [2, 32, 32] 的布林值張量
-            correct_count += correct.sum().item()
-            total_count += correct.numel()
-            #accuracy = correct_count / total_count
-    print(correct_count)
-    print(total_count)
-    accuracy = correct_count/total_count
-    print(accuracy)
-    return accuracy, loss
     
 
 
