@@ -16,10 +16,20 @@ this project is based on :
 ---  
 ## Run  
 ### Train
++ using CPU to train the model  
+```  
+python train.py
+```  
++ using GPU to train the model  
 ```  
 python train.py --gpu=0  
 ```  
 ### Test
++ using CPU to test the model  
+```  
+python test.py
+```  
++ using GPU to test the model  
 ```  
 python test.py --gpu=0  
-```  
+``` 
