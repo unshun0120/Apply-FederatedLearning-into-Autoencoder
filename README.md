@@ -8,6 +8,7 @@ this project is based on :
 + https://github.com/L1aoXingyu/pytorch-beginner/tree/master    
 
 ---  
+## Before Running  
 1. Create a new folder called **"Dataset"** outside the downloaded folder  
 2. Create a new folder called **"logs"** outside the downloaded folder  
 3. Create a new folder called **"save_objects"** inside the downloaded folder  
