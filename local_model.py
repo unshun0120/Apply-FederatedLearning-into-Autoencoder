@@ -45,7 +45,7 @@ class LocalUpdate(object):
         
         return trainloader, validloader, testloader
 
-    def update_weights(self, curr_user, user_idx, model, global_round):
+    def update_weights(self, args, curr_user, user_idx, model, global_round):
         # Set mode to train model
         model.train()
         epoch_loss = []
@@ -60,11 +60,13 @@ class LocalUpdate(object):
         for local_epoch in range(self.args.local_ep):
             batch_loss = []
             for _, (images, _) in enumerate(tqdm(self.trainloader, desc="Local Round {} ...".format(local_epoch+1))):
-                # 將(batch_size, channels, height, width)的tensor轉成(batch_size, features)，方便輸入到fully-connected layer
-                images = images.view(images.size(0), -1)
+                if args.model == 'ae':
+                    # 將(batch_size, channels, height, width)的tensor轉成(batch_size, features)，方便輸入到fully-connected layer
+                    images = images.view(images.size(0), -1)
+                elif args.model == 'cnnae':
+                    pass
                 images = images.to(self.device)
                 model.zero_grad()
-
                 s_predicted = model(images)
                 # get loss value
                 loss = self.criterion(s_predicted, images)
@@ -77,7 +79,7 @@ class LocalUpdate(object):
 
         return model.state_dict(), sum(epoch_loss) / len(epoch_loss)
 
-    def inference(self, model):
+    def inference(self, args, model):
         """ 
         Returns the inference Reconstructino Loss.
         """
@@ -86,10 +88,12 @@ class LocalUpdate(object):
 
         with torch.no_grad():
             for _, (images, _) in enumerate(self.testloader):
-                images = images.view(images.size(0), -1)
+                if args.model == 'ae':
+                    images = images.view(images.size(0), -1)
+                elif args.model == 'cnnae':
+                    pass
                 images = images.to(self.device)
                 s_predicted = model(images)
-
                 loss = self.criterion(s_predicted, images)
                 reconstruction_error += loss.item()
 

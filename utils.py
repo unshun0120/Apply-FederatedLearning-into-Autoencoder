@@ -20,10 +20,17 @@ def FedAvg(w):
 
 def exp_details(args):
     print('\nExperimental details:')
+    
     if args.gpu : 
         print(f'    Device : GPU')
     else : 
         print(f'    Device : CPU')
+
+    if args.model == 'ae':
+        print(f'    Autoencoder model: Autoencoder')
+    elif args.model == 'cnnae':
+        print(f'    Autoencoder model: Convolutional Autoencoder')
+
     print(f'    Dataset : {args.dataset}')
     print(f'    Optimizer : {args.optimizer}')
     print(f'    Learning rate  : {args.lr}')

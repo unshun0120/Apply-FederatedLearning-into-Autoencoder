@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader
 
 from argument import args_parser
 from dataset import get_dataset
-from model import autoencoder
+from model import autoencoder, cnn_autoencoder
 from local_model import LocalUpdate
 from utils import FedAvg, exp_details
 
@@ -24,19 +24,7 @@ if __name__ == '__main__':
 
     args = args_parser()
     exp_details(args)
-    """
-    # set seeds
-    seed = 40
-    # Python built-in random module 
-    random.seed(seed)
-    # Numpy
-    np.random.seed(seed)
-    # Torch
-    torch.manual_seed(seed)
-    if args.gpu:
-        torch.cuda.manual_seed(seed)
-        torch.cuda.manual_seed_all(seed)
-    """
+    
     # use GPU or CPU
     if args.gpu:
         torch.cuda.set_device(int(args.gpu))
@@ -47,7 +35,13 @@ if __name__ == '__main__':
     train_dataset, test_dataset, user_groups = get_dataset(args)
 
     # Autoencoder Global model
-    global_model = autoencoder()
+    if args.model == 'ae':
+        global_model = autoencoder()
+        model_name = 'Autoencoder'
+    elif args.model == 'cnnae':
+        global_model = cnn_autoencoder()
+        model_name = 'Convolutional Autoencoder'
+        
     global_model.to(device)
     global_model.train()
 
@@ -78,7 +72,7 @@ if __name__ == '__main__':
         # local model training
         for idx in idxs_users: 
             local_model = LocalUpdate(args=args, dataset=train_dataset, idxs=user_groups[idx], logger=logger)
-            w, loss = local_model.update_weights(curr_user, idx, model=copy.deepcopy(global_model), global_round=epoch)
+            w, loss = local_model.update_weights(args, curr_user, idx, model=copy.deepcopy(global_model), global_round=epoch)
 
             local_weights.append(copy.deepcopy(w))
             local_losses.append(copy.deepcopy(loss))
@@ -101,27 +95,29 @@ if __name__ == '__main__':
         for c in tqdm(range(args.num_users), colour="yellow"):
             local_model = LocalUpdate(args=args, dataset=train_dataset,
                                       idxs=user_groups[c], logger=logger)
-            loss = local_model.inference(model=global_model)
+            loss = local_model.inference(args, model=global_model)
             inference_loss.append(loss)
             
         print(f'\nAvg Training Stats after {epoch+1} global rounds:')
         print(f'Training Loss : {np.mean(np.array(train_loss))}')
         print(f'Inference Loss : {sum(inference_loss)/len(inference_loss)}\n')
     
-    # Test
+    # Test 
     print("Testing ...")
     test_batch_size = 32
     testloader = DataLoader(test_dataset, batch_size=test_batch_size, shuffle=False)
-    criterion = nn.MSELoss().to(device)
+    test_criterion = nn.MSELoss().to(device)
     reconstruction_error = 0.0
 
     with torch.no_grad():
         for _, (images, labels) in enumerate(tqdm(testloader, colour="blue")):
-            images = images.view(images.size(0), -1)
+            if args.model == 'ae':
+                images = images.view(images.size(0), -1)
+            elif args.model == 'cnnae':
+                pass
             images = images.to(device)
-            
             output = global_model(images)
-            loss = criterion(output, images)
+            loss = test_criterion(output, images)
             reconstruction_error += loss.item()
     
     # Computing the Reconstruction Error
@@ -129,16 +125,24 @@ if __name__ == '__main__':
     print(f"Reconstruction Error: {reconstruction_error}\n")
 
     # Saving the training loss objects:
-    print("Saving the Autoencoder model training loss objects...")
-    file_name = '../save_objects/Autoencoder_{}_GE[{}]_LE[{}]_B[{}].pkl'.\
-        format(args.dataset, args.global_ep, args.local_ep, args.local_bs)
+    print(f"Saving the {model_name} model training loss objects...")
+    if args.model == 'ae': 
+        file_name = '../save_objects/Autoencoder_{}_GE[{}]_LE[{}]_B[{}].pkl'.\
+            format(args.dataset, args.global_ep, args.local_ep, args.local_bs)
+    elif args.model == 'cnnae':
+        file_name = '../save_objects/CNN_Autoencoder_{}_GE[{}]_LE[{}]_B[{}].pkl'.\
+            format(args.dataset, args.global_ep, args.local_ep, args.local_bs)
     with open(file_name, 'wb') as f:
         pickle.dump([train_loss], f)
 
     #Save the model
-    print("Saving the Autoencoder model ...\n")
-    torch.save(global_model.state_dict(), '../save_models/Autoencoder_{}_GE[{}]_LE[{}]_B[{}].pth'.\
-        format(args.dataset, args.global_ep, args.local_ep, args.local_bs))
+    print(f"Saving the {model_name} model ...\n")
+    if args.model == 'ae':
+        torch.save(global_model.state_dict(), '../save_models/Autoencoder_{}_GE[{}]_LE[{}]_B[{}].pth'.\
+            format(args.dataset, args.global_ep, args.local_ep, args.local_bs))
+    elif args.model == 'cnnae':
+        torch.save(global_model.state_dict(), '../save_models/CNN_Autoencoder_{}_GE[{}]_LE[{}]_B[{}].pth'.\
+            format(args.dataset, args.global_ep, args.local_ep, args.local_bs))
     print("Saving Complete !!!")
 
     print('\nTotal Run Time: {0:0.4f}'.format(time.time()-start_time))

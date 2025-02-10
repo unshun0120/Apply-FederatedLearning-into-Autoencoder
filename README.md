@@ -17,21 +17,28 @@ this project is based on :
   
 ---  
 ## Run  
-### Train
-+ using CPU to train the model  
+### Train (train.py include the test)
++ using CPU
 ```  
 python train.py
 ```  
-+ using GPU to train the model  
++ using GPU 
 ```  
 python train.py --gpu=0  
 ```  
++ using argument on training 
+*Example*:  
+global epoch = 1, local epoch = 1, model = Convolutional Autoencoder  
+```
+python train.py --gpu=0 --global_ep=1 --model=cnnae  
+```
+
 ### Test
-+ using CPU to test the model  
++ using CPU  
 ```  
 python test.py
 ```  
-+ using GPU to test the model  
++ using GPU  
 ```  
 python test.py --gpu=0  
 ``` 

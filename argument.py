@@ -9,6 +9,8 @@ def args_parser():
     parser.add_argument('--gpu', default=None, help="To use cuda, set to a specific GPU ID. Default set to use CPU.")
 
     # model something setup
+    # Autoencoder Model
+    parser.add_argument('--model', type=str, default='ae', help="name of autoencoder or its variants. Default set to use Autoencoder")
     # Dataset
     parser.add_argument('--dataset', type=str, default='MNIST', help="name of dataset. Default set to use CIFAR10")
     # Optimizer

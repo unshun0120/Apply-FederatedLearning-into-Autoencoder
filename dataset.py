@@ -29,11 +29,8 @@ def get_dataset(args):
         
     return train_dataset, test_dataset, user_groups
 
+# for test.py
 def get_test_dataset(args):
-    """ Returns train and test datasets and a user group which is a dict where
-    the keys are the user index and the values are the corresponding data for
-    each of those users.
-    """
     if args.dataset == 'MNIST':
         data_dir = '../Dataset/MNIST/'
 
