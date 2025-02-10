@@ -40,3 +40,7 @@ python test.py
 ```  
 python test.py --gpu=0  
 ``` 
++ e.g. test Autoencoder model
+```
+python test.py --gpu=0 --model=ae  
+```
