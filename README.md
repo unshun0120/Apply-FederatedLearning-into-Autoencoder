@@ -12,7 +12,8 @@ this project is based on :
 1. Create a new folder called **"Dataset"** outside the downloaded folder  
 2. Create a new folder called **"logs"** outside the downloaded folder  
 3. Create a new folder called **"save_objects"** inside the downloaded folder  
-4. Create a new folder called **"save_models"** outside the downloaded folder    
+4. Create a new folder called **"save_models"** outside the downloaded folder
+![image](https://github.com/user-attachments/assets/ef989b0b-f14e-4cbe-bef3-6a3437e49f62)  
   
 ---  
 ## Run  
