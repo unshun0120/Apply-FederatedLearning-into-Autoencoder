@@ -26,8 +26,7 @@ python train.py
 ```  
 python train.py --gpu=0  
 ```  
-+ using arguments on training   
-e.g. global epoch = 1, local epoch = 1, model = Convolutional Autoencoder  
++ e.g. global epoch = 1, model = Convolutional Autoencoder  
 ```
 python train.py --gpu=0 --global_ep=1 --model=cnnae  
 ```
