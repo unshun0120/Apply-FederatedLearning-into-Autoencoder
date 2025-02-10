@@ -82,7 +82,6 @@ class LocalUpdate(object):
         Returns the inference Reconstructino Loss.
         """
 
-        model.eval()
         reconstruction_error = 0.0
 
         with torch.no_grad():

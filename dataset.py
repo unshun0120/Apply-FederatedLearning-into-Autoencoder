@@ -11,7 +11,6 @@ def get_dataset(args):
 
         apply_transform = transforms.Compose([
             transforms.ToTensor(),
-            #transforms.Normalize((0.1307,), (0.3081,))])
             transforms.Normalize([0.5], [0.5])
         ])
 
@@ -29,3 +28,21 @@ def get_dataset(args):
         all_data_idxs = list(set(all_data_idxs) - user_groups[i])
         
     return train_dataset, test_dataset, user_groups
+
+def get_test_dataset(args):
+    """ Returns train and test datasets and a user group which is a dict where
+    the keys are the user index and the values are the corresponding data for
+    each of those users.
+    """
+    if args.dataset == 'MNIST':
+        data_dir = '../Dataset/MNIST/'
+
+        apply_transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize([0.5], [0.5])
+        ])
+
+        test_dataset = datasets.MNIST(data_dir, train=False, download=True,
+                                      transform=apply_transform)
+        
+    return test_dataset

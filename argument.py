@@ -14,7 +14,7 @@ def args_parser():
     # Optimizer
     parser.add_argument('--optimizer', type=str, default='Adam', help="type of optimizer")
     # Learning rate
-    parser.add_argument('--lr', type=float, default=0.01, help='learning rate')
+    parser.add_argument('--lr', type=float, default=0.001, help='learning rate')
 
     # Federated Learning setup 
     # Epochs

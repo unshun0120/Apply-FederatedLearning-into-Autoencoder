@@ -3,6 +3,7 @@ import numpy as np
 import copy
 import pickle
 import time
+import random
 
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
@@ -21,7 +22,19 @@ if __name__ == '__main__':
 
     args = args_parser()
     exp_details(args)
-
+    """
+    # set seeds
+    seed = 40
+    # Python built-in random module 
+    random.seed(seed)
+    # Numpy
+    np.random.seed(seed)
+    # Torch
+    torch.manual_seed(seed)
+    if args.gpu:
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
+    """
     # use GPU or CPU
     if args.gpu:
         torch.cuda.set_device(int(args.gpu))
