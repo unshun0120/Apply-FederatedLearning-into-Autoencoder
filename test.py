@@ -61,7 +61,6 @@ if __name__ == '__main__':
             reconstruction_error += loss.item()
     
 
-
     """     
     images = images[0].cpu()
     # outpt.size() = [16, 784]

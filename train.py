@@ -5,8 +5,10 @@ import pickle
 import time
 import random
 
+import torch.nn as nn
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
+from torch.utils.data import DataLoader
 
 from argument import args_parser
 from dataset import get_dataset
@@ -105,6 +107,26 @@ if __name__ == '__main__':
         print(f'\nAvg Training Stats after {epoch+1} global rounds:')
         print(f'Training Loss : {np.mean(np.array(train_loss))}')
         print(f'Inference Loss : {sum(inference_loss)/len(inference_loss)}\n')
+    
+    # Test
+    print("Testing ...")
+    test_batch_size = 32
+    testloader = DataLoader(test_dataset, batch_size=test_batch_size, shuffle=False)
+    criterion = nn.MSELoss().to(device)
+    reconstruction_error = 0.0
+
+    with torch.no_grad():
+        for _, (images, labels) in enumerate(tqdm(testloader, colour="blue")):
+            images = images.view(images.size(0), -1)
+            images = images.to(device)
+            
+            output = global_model(images)
+            loss = criterion(output, images)
+            reconstruction_error += loss.item()
+    
+    # Computing the Reconstruction Error
+    reconstruction_error /= len(testloader)
+    print(f"Reconstruction Error: {reconstruction_error}\n")
 
     # Saving the training loss objects:
     print("Saving the Autoencoder model training loss objects...")
