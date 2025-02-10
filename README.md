@@ -26,7 +26,7 @@ python train.py
 ```  
 python train.py --gpu=0  
 ```  
-+ using argument on training 
++ using argument on training   
 *Example*:  
 global epoch = 1, local epoch = 1, model = Convolutional Autoencoder  
 ```
