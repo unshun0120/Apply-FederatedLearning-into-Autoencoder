@@ -25,7 +25,7 @@ nn.Conv2d(1, 32, kernel_size=3, stride=2, padding=1)
 ###  VAE 的基本架構  
 + VAE 的結構分為 Encoder、Latent Space（隱變數空間）和 Decoder 三部分：   
     Encoder：將輸入壓縮成潛在空間（latent space）的參數（均值 μ 和標準差 σ）    
-    Latent Space：使用 reparameterization trick 從正態分佈中取樣 z    
+    Latent Space：使用 reparameterization trick 從常態分佈中取樣 z    
     Decoder：將 z 解碼回原本的數據空間  
 
 + VAE 的 loss 由兩部分組成：  
