@@ -8,9 +8,10 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 
-from model import autoencoder, cnn_autoencoder
+from model import autoencoder, cnn_autoencoder, VAE
 from argument import args_parser
 from dataset import get_test_dataset
+from utils import loss_vae
 
 
 
@@ -41,6 +42,10 @@ if __name__ == '__main__':
         model_file_path = '../save_models/CNN_Autoencoder_{}_GE[{}]_LE[{}]_B[{}].pth'.\
             format(dataset, global_ep, local_ep, local_bs)
         AE_FL_model = cnn_autoencoder().to(device)
+    elif args.model == 'vae':
+        model_file_path = '../save_models/VAE_{}_GE[{}]_LE[{}]_B[{}].pth'.\
+            format(dataset, global_ep, local_ep, local_bs)
+        AE_FL_model = VAE().to(device)
     
     AE_FL_model.load_state_dict(torch.load(model_file_path, weights_only=True))
     AE_FL_model.eval()  
@@ -54,13 +59,20 @@ if __name__ == '__main__':
     print("Testing ...")
     with torch.no_grad():
         for _, (images, labels) in enumerate(tqdm(testloader, colour="blue")):
-            if args.model == 'ae':
+            if args.model == 'ae' or args.model == 'vae':
                 images = images.view(images.size(0), -1)
-            elif args.model == 'cnnae':
+            else:
                 pass
+
             images = images.to(device)
-            output = AE_FL_model(images)
-            loss = criterion(output, images)
+            if args.model == 'vae': 
+                s_predicted, mu, logvar = AE_FL_model(images)
+                loss = loss_vae(s_predicted, images, mu, logvar, criterion)
+            else: 
+                s_predicted = AE_FL_model(images)
+                # get loss value
+                loss = criterion(s_predicted, images)
+
             reconstruction_error += loss.item()
 
     # Computing the Reconstruction Error

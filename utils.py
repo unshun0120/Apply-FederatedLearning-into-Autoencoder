@@ -1,6 +1,16 @@
 import copy
 import torch
+import torch.nn as nn
 
+def loss_vae(recon_x, x, mu, logvar, criterion):
+    # Reconstruction_loss
+    reconstruction_loss = criterion(recon_x, x)
+    
+    # KL divergence
+    KLD_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+
+    # 總損失
+    return reconstruction_loss + KLD_loss
 
 def FedAvg(w):
     """
@@ -30,6 +40,8 @@ def exp_details(args):
         print(f'    Autoencoder model: Autoencoder')
     elif args.model == 'cnnae':
         print(f'    Autoencoder model: Convolutional Autoencoder')
+    elif args.model == 'vae':
+        print(f'    Autoencoder model: Variational Autoencoder')
 
     print(f'    Dataset : {args.dataset}')
     print(f'    Optimizer : {args.optimizer}')

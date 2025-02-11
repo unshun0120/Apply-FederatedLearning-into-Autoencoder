@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 
 class autoencoder(nn.Module):
@@ -55,6 +56,57 @@ class cnn_autoencoder(nn.Module):
         x = self.encoder(x)
         x = self.decoder(x)
         return x
+    
+"""
+VAE 的結構分為 Encoder、Latent Space(隱變數空間) 和 Decoder 三個部分：
+    Encoder: 將輸入壓縮成潛在空間(latent space)的參數(均值 μ 和標準差 σ)。
+    Latent Space: 使用 reparameterization trick 從常態分布中取樣 z。
+    Decoder: 將 z 解碼回原本的數據空間。
+"""
+class VAE(nn.Module):
+    def __init__(self, input_dim=784, hidden_dim=400, latent_dim=20):
+        super(VAE, self).__init__()
+
+        # Encoder: 784 -> 400 -> (μ, logσ²)
+        self.fc1 = nn.Linear(input_dim, hidden_dim)  # 第一層隱藏層
+        #　計算latent space的均值 μ，代表「最可能的潛在變數值」。
+        self.fc_mu = nn.Linear(hidden_dim, latent_dim)  # 均值 μ
+        # 計算對數變異數 log(σ²)，用來決定 σ（標準差），即變數的不確定性。
+        # 為什麼要輸出 log(σ²) 而不是 σ? -> 直接學習標準差 σ 可能會導致數值不穩定，取對數可以讓學習過程更穩定。
+        self.fc_logvar = nn.Linear(hidden_dim, latent_dim)  # log(σ²)
+
+        # Decoder: z -> 400 -> 784
+        self.fc2 = nn.Linear(latent_dim, hidden_dim)  # Latent space -> 隱藏層
+        self.fc3 = nn.Linear(hidden_dim, input_dim)  # 隱藏層 -> 輸出層 (重建)
+
+        self.relu = nn.ReLU()
+        self.sigmoid = nn.Sigmoid()
+
+    def encode(self, x):
+        h = self.relu(self.fc1(x))
+        mu = self.fc_mu(h)
+        logvar = self.fc_logvar(h)
+        return mu, logvar
+
+    """
+    為什麼要 reparameterize ?為什麼不能直接 z ~ N(μ, σ²)?
+    -> 因為直接從 N(μ, σ²) 取樣是不可微分的，會影響反向傳播
+    reparameterize 將 z 轉換成：𝑧 = 𝜇 + σ * 𝜖
+    這樣 μ 和 log(σ²) 仍然能參與梯度計算，使得 VAE 可以用梯度下降學習
+    """
+    def reparameterize(self, mu, logvar):
+        std = torch.exp(0.5 * logvar)  # 計算標準差 σ
+        eps = torch.randn_like(std)  # 取標準常態分布的隨機數
+        return mu + eps * std  # 𝑧 = 𝜇 + 𝜎 * 𝜖
+
+    def decode(self, z):
+        h = self.relu(self.fc2(z))
+        return self.sigmoid(self.fc3(h))  # 使用 Sigmoid 限制輸出範圍在 (0,1)
+
+    def forward(self, x):
+        mu, logvar = self.encode(x)  # Flatten 輸入
+        z = self.reparameterize(mu, logvar)  # 取樣 latent vector
+        return self.decode(z), mu, logvar
 
 
     

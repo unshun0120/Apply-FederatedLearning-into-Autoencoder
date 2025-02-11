@@ -12,9 +12,9 @@ from torch.utils.data import DataLoader
 
 from argument import args_parser
 from dataset import get_dataset
-from model import autoencoder, cnn_autoencoder
+from model import autoencoder, cnn_autoencoder, VAE
 from local_model import LocalUpdate
-from utils import FedAvg, exp_details
+from utils import loss_vae, FedAvg, exp_details
 
 
 if __name__ == '__main__':
@@ -41,6 +41,9 @@ if __name__ == '__main__':
     elif args.model == 'cnnae':
         global_model = cnn_autoencoder()
         model_name = 'Convolutional Autoencoder'
+    elif args.model == 'vae':
+        global_model = VAE()
+        model_name = 'Variational Autoencoder'
         
     global_model.to(device)
     global_model.train()
@@ -111,13 +114,20 @@ if __name__ == '__main__':
 
     with torch.no_grad():
         for _, (images, labels) in enumerate(tqdm(testloader, colour="blue")):
-            if args.model == 'ae':
+            if args.model == 'ae' or args.model == 'vae':
                 images = images.view(images.size(0), -1)
-            elif args.model == 'cnnae':
+            else:
                 pass
+
             images = images.to(device)
-            output = global_model(images)
-            loss = test_criterion(output, images)
+            if args.model == 'vae': 
+                s_predicted, mu, logvar = global_model(images)
+                loss = loss_vae(s_predicted, images, mu, logvar, test_criterion)
+            else: 
+                s_predicted = global_model(images)
+                # get loss value
+                loss = test_criterion(s_predicted, images)
+
             reconstruction_error += loss.item()
     
     # Computing the Reconstruction Error
@@ -126,23 +136,32 @@ if __name__ == '__main__':
 
     # Saving the training loss objects:
     print(f"Saving the {model_name} model training loss objects...")
+
     if args.model == 'ae': 
         file_name = '../save_objects/Autoencoder_{}_GE[{}]_LE[{}]_B[{}].pkl'.\
             format(args.dataset, args.global_ep, args.local_ep, args.local_bs)
     elif args.model == 'cnnae':
         file_name = '../save_objects/CNN_Autoencoder_{}_GE[{}]_LE[{}]_B[{}].pkl'.\
             format(args.dataset, args.global_ep, args.local_ep, args.local_bs)
+    elif args.model == 'vae':
+        file_name = '../save_objects/VAE_{}_GE[{}]_LE[{}]_B[{}].pkl'.\
+            format(args.dataset, args.global_ep, args.local_ep, args.local_bs)
+        
     with open(file_name, 'wb') as f:
         pickle.dump([train_loss], f)
 
     #Save the model
     print(f"Saving the {model_name} model ...\n")
+
     if args.model == 'ae':
         torch.save(global_model.state_dict(), '../save_models/Autoencoder_{}_GE[{}]_LE[{}]_B[{}].pth'.\
             format(args.dataset, args.global_ep, args.local_ep, args.local_bs))
     elif args.model == 'cnnae':
         torch.save(global_model.state_dict(), '../save_models/CNN_Autoencoder_{}_GE[{}]_LE[{}]_B[{}].pth'.\
             format(args.dataset, args.global_ep, args.local_ep, args.local_bs))
+    elif args.model == 'vae':
+        torch.save(global_model.state_dict(), '../save_models/VAE_{}_GE[{}]_LE[{}]_B[{}].pth'.\
+            format(args.dataset, args.global_ep, args.local_ep, args.local_bs))
+        
     print("Saving Complete !!!")
-
     print('\nTotal Run Time: {0:0.4f}'.format(time.time()-start_time))

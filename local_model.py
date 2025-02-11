@@ -2,6 +2,7 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
+from utils import loss_vae
 
 class DatasetSplit(Dataset):
     """
@@ -60,16 +61,22 @@ class LocalUpdate(object):
         for local_epoch in range(self.args.local_ep):
             batch_loss = []
             for _, (images, _) in enumerate(tqdm(self.trainloader, desc="Local Round {} ...".format(local_epoch+1))):
-                if args.model == 'ae':
+                if args.model == 'ae' or args.model == 'vae':
                     # 將(batch_size, channels, height, width)的tensor轉成(batch_size, features)，方便輸入到fully-connected layer
                     images = images.view(images.size(0), -1)
-                elif args.model == 'cnnae':
+                else:
                     pass
+
                 images = images.to(self.device)
                 model.zero_grad()
-                s_predicted = model(images)
-                # get loss value
-                loss = self.criterion(s_predicted, images)
+                if args.model == 'vae': 
+                    s_predicted, mu, logvar = model(images)
+                    loss = loss_vae(s_predicted, images, mu, logvar, self.criterion)
+                else: 
+                    s_predicted = model(images)
+                    # get loss value
+                    loss = self.criterion(s_predicted, images)
+
                 loss.backward()
                 optimizer.step()
                 self.logger.add_scalar('loss', loss.item())
@@ -88,17 +95,23 @@ class LocalUpdate(object):
 
         with torch.no_grad():
             for _, (images, _) in enumerate(self.testloader):
-                if args.model == 'ae':
+                if args.model == 'ae' or args.model == 'vae':
                     images = images.view(images.size(0), -1)
-                elif args.model == 'cnnae':
+                else:
                     pass
+
                 images = images.to(self.device)
-                s_predicted = model(images)
-                loss = self.criterion(s_predicted, images)
+                if args.model == 'vae': 
+                    s_predicted, mu, logvar = model(images)
+                    loss = loss_vae(s_predicted, images, mu, logvar, self.criterion)
+                else: 
+                    s_predicted = model(images)
+                    # get loss value
+                    loss = self.criterion(s_predicted, images)
+
                 reconstruction_error += loss.item()
 
         reconstruction_error /= len(self.testloader)
-        #print(f"Reconstruction Error: {reconstruction_error}")
 
         return loss
     
