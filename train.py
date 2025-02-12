@@ -134,7 +134,7 @@ if __name__ == '__main__':
                 s_predicted, vq_loss = global_model(images)
                 recon_loss = test_criterion(s_predicted, images)
                 loss = recon_loss + vq_loss
-            else: 
+            elif args.model == 'ae' or args.model == 'cnnae': 
                 s_predicted = global_model(images)
                 loss = test_criterion(s_predicted, images)
 

@@ -76,9 +76,8 @@ class LocalUpdate(object):
                     s_predicted, vq_loss = model(images)
                     recon_loss = self.criterion(s_predicted, images)
                     loss = recon_loss + vq_loss
-                else: 
+                elif args.model == 'ae' or args.model == 'cnnae': 
                     s_predicted = model(images)
-                    # get loss value
                     loss = self.criterion(s_predicted, images)
 
                 loss.backward()
@@ -112,9 +111,8 @@ class LocalUpdate(object):
                     s_predicted, vq_loss = model(images)
                     recon_loss = self.criterion(s_predicted, images)
                     loss = recon_loss + vq_loss
-                else: 
+                elif args.model == 'ae' or args.model == 'cnnae': 
                     s_predicted = model(images)
-                    # get loss value
                     loss = self.criterion(s_predicted, images)
 
                 reconstruction_error += loss.item()

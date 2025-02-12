@@ -80,7 +80,7 @@ if __name__ == '__main__':
                 s_predicted, vq_loss = AE_FL_model(images)
                 recon_loss = criterion(s_predicted, images)
                 loss = recon_loss + vq_loss
-            else: 
+            elif args.model == 'ae' or args.model == 'cnnae': 
                 s_predicted = AE_FL_model(images)
                 # get loss value
                 loss = criterion(s_predicted, images)
