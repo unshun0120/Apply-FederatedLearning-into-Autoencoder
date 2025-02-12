@@ -19,7 +19,7 @@ nn.Conv2d(1, 32, kernel_size=3, stride=2, padding=1)
 ```
 + stride=2: 圖片尺寸縮小一半, 用stride=1+MaxPool2d(2,2)有一樣的效果  
 + conv2d 卷積輸出尺寸計算公式:  
-![alt text](image.png)  
+![alt text](./md_images/image.png)  
 
 ## VAE知識點:  
 ###  VAE 的基本架構  
@@ -29,7 +29,7 @@ nn.Conv2d(1, 32, kernel_size=3, stride=2, padding=1)
     Decoder：將 z 解碼回原本的數據空間  
 
 + VAE 的 loss 由兩部分組成：  
-![alt text](image-1.png)  
+![alt text](./md_images/image-1.png)  
 
 + VAE model Reparameterization:  
 ```python
@@ -40,12 +40,12 @@ def reparameterize(self, mu, logvar):
 ```
 std = torch.exp(0.5 * logvar)  
 計算標準差 σ:  
-![alt text](image-3.png)  
+![alt text](./md_images/image-3.png)  
 
 + KL-divergence:   
 定義: 衡量兩個機率分佈的差異，值越小表示兩者越接近  
 KLD loss計算公式:  
-![alt text](image-2.png)  
+![alt text](./md_images/image-2.png)  
 ```python
 kl_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
 ```
