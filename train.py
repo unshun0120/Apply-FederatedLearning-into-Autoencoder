@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader
 
 from argument import args_parser
 from dataset import get_dataset
-from model import autoencoder, cnn_autoencoder, VAE
+from model import autoencoder, cnn_autoencoder, vae, cnn_vae
 from local_model import LocalUpdate
 from utils import loss_vae, FedAvg, exp_details
 
@@ -42,8 +42,11 @@ if __name__ == '__main__':
         global_model = cnn_autoencoder()
         model_name = 'Convolutional Autoencoder'
     elif args.model == 'vae':
-        global_model = VAE()
+        global_model = vae()
         model_name = 'Variational Autoencoder'
+    elif args.model == 'cnnvae':
+        global_model = cnn_vae()
+        model_name = 'Convolutional Variational Autoencoder'
         
     global_model.to(device)
     global_model.train()
@@ -120,7 +123,7 @@ if __name__ == '__main__':
                 pass
 
             images = images.to(device)
-            if args.model == 'vae': 
+            if args.model == 'vae' or args.model == 'cnnvae': 
                 s_predicted, mu, logvar = global_model(images)
                 loss = loss_vae(s_predicted, images, mu, logvar, test_criterion)
             else: 
@@ -146,6 +149,9 @@ if __name__ == '__main__':
     elif args.model == 'vae':
         file_name = '../save_objects/VAE_{}_GE[{}]_LE[{}]_B[{}].pkl'.\
             format(args.dataset, args.global_ep, args.local_ep, args.local_bs)
+    elif args.model == 'cnnvae':
+        file_name = '../save_objects/CNNVAE_{}_GE[{}]_LE[{}]_B[{}].pkl'.\
+            format(args.dataset, args.global_ep, args.local_ep, args.local_bs)
         
     with open(file_name, 'wb') as f:
         pickle.dump([train_loss], f)
@@ -162,6 +168,9 @@ if __name__ == '__main__':
     elif args.model == 'vae':
         torch.save(global_model.state_dict(), '../save_models/VAE_{}_GE[{}]_LE[{}]_B[{}].pth'.\
             format(args.dataset, args.global_ep, args.local_ep, args.local_bs))
-        
+    elif args.model == 'cnnvae':
+        torch.save(global_model.state_dict(), '../save_models/CNNVAE_{}_GE[{}]_LE[{}]_B[{}].pth'.\
+            format(args.dataset, args.global_ep, args.local_ep, args.local_bs))
+
     print("Saving Complete !!!")
     print('\nTotal Run Time: {0:0.4f}'.format(time.time()-start_time))

@@ -69,7 +69,7 @@ class LocalUpdate(object):
 
                 images = images.to(self.device)
                 model.zero_grad()
-                if args.model == 'vae': 
+                if args.model == 'vae' or args.model == 'cnnvae': 
                     s_predicted, mu, logvar = model(images)
                     loss = loss_vae(s_predicted, images, mu, logvar, self.criterion)
                 else: 
@@ -101,7 +101,7 @@ class LocalUpdate(object):
                     pass
 
                 images = images.to(self.device)
-                if args.model == 'vae': 
+                if args.model == 'vae' or args.model == 'cnnvae': 
                     s_predicted, mu, logvar = model(images)
                     loss = loss_vae(s_predicted, images, mu, logvar, self.criterion)
                 else: 

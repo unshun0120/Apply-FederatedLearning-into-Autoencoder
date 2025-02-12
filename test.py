@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 
-from model import autoencoder, cnn_autoencoder, VAE
+from model import autoencoder, cnn_autoencoder, vae, cnn_vae
 from argument import args_parser
 from dataset import get_test_dataset
 from utils import loss_vae
@@ -45,7 +45,11 @@ if __name__ == '__main__':
     elif args.model == 'vae':
         model_file_path = '../save_models/VAE_{}_GE[{}]_LE[{}]_B[{}].pth'.\
             format(dataset, global_ep, local_ep, local_bs)
-        AE_FL_model = VAE().to(device)
+        AE_FL_model = vae().to(device)
+    elif args.model == 'cnnvae':
+        model_file_path = '../save_models/CNNVAE_{}_GE[{}]_LE[{}]_B[{}].pth'.\
+            format(dataset, global_ep, local_ep, local_bs)
+        AE_FL_model = cnn_vae().to(device)
     
     AE_FL_model.load_state_dict(torch.load(model_file_path, weights_only=True))
     AE_FL_model.eval()  
@@ -65,7 +69,7 @@ if __name__ == '__main__':
                 pass
 
             images = images.to(device)
-            if args.model == 'vae': 
+            if args.model == 'vae' or args.model == 'cnnvae': 
                 s_predicted, mu, logvar = AE_FL_model(images)
                 loss = loss_vae(s_predicted, images, mu, logvar, criterion)
             else: 
