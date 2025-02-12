@@ -16,7 +16,7 @@ conda create --name 新環境名字 --clone 舊環境名字
 我環境裡面有裝pytorch相關的東西, 我感覺會很麻煩所以我沒用哈哈  
 
 
-## 如果要讓一個檔案呼叫到一個資料夾底下某個檔案中的class或funtion  
+## 如何讓一個檔案呼叫到一個資料夾底下某個檔案中的class或funtion  
 e.g. 假設我要在main.py呼叫model資料夾底下AE.py檔案中的autoencoder類別  
 在main.py中加上
 ```python
