@@ -84,4 +84,3 @@ VQ-VAE 的神經網路主要分成三部分:
 ![alt text](./md_images/L2-1.png)  
 可以展開為:  
 ![alt text](./md_images/L2-2.png)  
-這個好難臥操 QAQ  
