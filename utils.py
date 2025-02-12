@@ -44,6 +44,8 @@ def exp_details(args):
         print(f'    Autoencoder model: Variational Autoencoder')
     elif args.model == 'cnnvae':
         print(f'    Autoencoder model: Convolutional Variational Autoencoder')
+    elif args.model == 'vqvae':
+        print(f'    Autoencoder model: Vector Quantized Variational Autoencoder')
 
 
     print(f'    Dataset : {args.dataset}')

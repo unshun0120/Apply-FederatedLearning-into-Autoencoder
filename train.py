@@ -11,11 +11,11 @@ from torch.utils.data import DataLoader
 
 from argument import args_parser
 from dataset import get_dataset
-#from model import cnn_autoencoder, vae, cnn_vae
 from local_model import LocalUpdate
 from utils import loss_vae, FedAvg, exp_details
 from model.AE import autoencoder, cnn_autoencoder
 from model.VAE import vae, cnn_vae
+from model.VQ_VAE import vqvae
 
 
 if __name__ == '__main__':
@@ -48,6 +48,9 @@ if __name__ == '__main__':
     elif args.model == 'cnnvae':
         global_model = cnn_vae()
         model_name = 'Convolutional Variational Autoencoder'
+    elif args.model == 'vqvae':
+        global_model = vqvae()
+        model_name = 'Vector Quantized Variational Autoencoder'
         
     global_model.to(device)
     global_model.train()
@@ -127,9 +130,12 @@ if __name__ == '__main__':
             if args.model == 'vae' or args.model == 'cnnvae': 
                 s_predicted, mu, logvar = global_model(images)
                 loss = loss_vae(s_predicted, images, mu, logvar, test_criterion)
+            elif args.model == 'vqvae' :
+                s_predicted, vq_loss = global_model(images)
+                recon_loss = test_criterion(s_predicted, images)
+                loss = recon_loss + vq_loss
             else: 
                 s_predicted = global_model(images)
-                # get loss value
                 loss = test_criterion(s_predicted, images)
 
             reconstruction_error += loss.item()
@@ -153,6 +159,9 @@ if __name__ == '__main__':
     elif args.model == 'cnnvae':
         file_name = '../save_objects/CNNVAE_{}_GE[{}]_LE[{}]_B[{}].pkl'.\
             format(args.dataset, args.global_ep, args.local_ep, args.local_bs)
+    elif args.model == 'vqvae':
+        file_name = '../save_objects/VQVAE_{}_GE[{}]_LE[{}]_B[{}].pkl'.\
+            format(args.dataset, args.global_ep, args.local_ep, args.local_bs)
         
     with open(file_name, 'wb') as f:
         pickle.dump([train_loss], f)
@@ -171,6 +180,9 @@ if __name__ == '__main__':
             format(args.dataset, args.global_ep, args.local_ep, args.local_bs))
     elif args.model == 'cnnvae':
         torch.save(global_model.state_dict(), '../save_models/CNNVAE_{}_GE[{}]_LE[{}]_B[{}].pth'.\
+            format(args.dataset, args.global_ep, args.local_ep, args.local_bs))
+    elif args.model == 'vqvae':
+        torch.save(global_model.state_dict(), '../save_models/VQVAE_{}_GE[{}]_LE[{}]_B[{}].pth'.\
             format(args.dataset, args.global_ep, args.local_ep, args.local_bs))
 
     print("Saving Complete !!!")

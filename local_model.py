@@ -72,6 +72,10 @@ class LocalUpdate(object):
                 if args.model == 'vae' or args.model == 'cnnvae': 
                     s_predicted, mu, logvar = model(images)
                     loss = loss_vae(s_predicted, images, mu, logvar, self.criterion)
+                elif args.model == 'vqvae' :
+                    s_predicted, vq_loss = model(images)
+                    recon_loss = self.criterion(s_predicted, images)
+                    loss = recon_loss + vq_loss
                 else: 
                     s_predicted = model(images)
                     # get loss value
@@ -104,6 +108,10 @@ class LocalUpdate(object):
                 if args.model == 'vae' or args.model == 'cnnvae': 
                     s_predicted, mu, logvar = model(images)
                     loss = loss_vae(s_predicted, images, mu, logvar, self.criterion)
+                elif args.model == 'vqvae' :
+                    s_predicted, vq_loss = model(images)
+                    recon_loss = self.criterion(s_predicted, images)
+                    loss = recon_loss + vq_loss
                 else: 
                     s_predicted = model(images)
                     # get loss value
