@@ -1,12 +1,12 @@
 # Issues  
 記錄我做這個project時遇到的問題, 不管我有沒有解決哈哈  
----
+
 
 ## 消除vscode的黃色warning底線  
 這個我在網路上找到一些但試了之後黃色底線還是在  
 然後網路上有人說習慣比解決更容易所以我就沒試了XD  
 但如果有人知道希望可以告訴我因為我有強迫症看了好不爽哈哈  
----
+
 
 ## 重新命名anaconda的虛擬環境 
 建一個新環境, 然後把舊環境刪掉  
@@ -14,7 +14,7 @@
 conda create --name 新環境名字 --clone 舊環境名字  
 ```
 我環境裡面有裝pytorch相關的東西, 我感覺會很麻煩所以我沒用哈哈  
----
+
 
 ## 如果要讓一個檔案呼叫到一個資料夾底下某個檔案中的class或funtion  
 e.g. 假設我要在main.py呼叫model資料夾底下AE.py檔案中的autoencoder類別  
@@ -26,7 +26,7 @@ from model.AE import autoencoder
 \_\_init\_\_.py中可以不用寫東西  
 e.g.  
 ![alt text](./md_images/image-4.png)
----
+
 
 ## CNN-Conv2d知識點:  
 ```python
@@ -35,7 +35,7 @@ nn.Conv2d(1, 32, kernel_size=3, stride=2, padding=1)
 + stride=2: 圖片尺寸縮小一半, 用stride=1+MaxPool2d(2,2)有一樣的效果  
 + conv2d 卷積輸出尺寸計算公式:  
 ![alt text](./md_images/image.png)  
----
+
 
 ## VAE知識點:  
 ###  VAE 架構  
@@ -65,7 +65,7 @@ KLD loss計算公式:
 ```python
 kl_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
 ```
----
+
 
 ## VQ-VAE知識點: 
 ### 定義
