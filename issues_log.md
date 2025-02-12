@@ -13,6 +13,17 @@ conda create --name 新環境名字 --clone 舊環境名字
 ```
 我環境裡面有裝pytorch相關的東西, 我感覺會很麻煩所以我沒用哈哈  
 
+## 如果要讓一個檔案呼叫到一個資料夾底下某個檔案中的class或funtion  
+e.g. 假設我要在main.py呼叫model資料夾底下AE.py黨中的autoencoder類別  
+在main.py中加上
+```python
+from model.AE import autoencoder
+```
+另外，在model資料夾中新增 "__init__.py" 這個檔案，讓python可以辨識model這個資料夾是一模組  
+__init__.py中可以不用寫東西  
+e.g.  
+![alt text](./md_images/image-4.png)
+
 ## CNN-Conv2d知識點:  
 ```python
 nn.Conv2d(1, 32, kernel_size=3, stride=2, padding=1)
@@ -32,7 +43,7 @@ nn.Conv2d(1, 32, kernel_size=3, stride=2, padding=1)
 ![alt text](./md_images/image-1.png)  
 
 + VAE model Reparameterization:  
-```python
+```python=
 def reparameterize(self, mu, logvar):
         std = torch.exp(0.5 * logvar)  # 計算標準差 σ
         eps = torch.randn_like(std)  # 取標準常態分布的隨機數

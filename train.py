@@ -3,7 +3,6 @@ import numpy as np
 import copy
 import pickle
 import time
-import random
 
 import torch.nn as nn
 from torch.utils.tensorboard import SummaryWriter
@@ -12,9 +11,11 @@ from torch.utils.data import DataLoader
 
 from argument import args_parser
 from dataset import get_dataset
-from model import autoencoder, cnn_autoencoder, vae, cnn_vae
+#from model import cnn_autoencoder, vae, cnn_vae
 from local_model import LocalUpdate
 from utils import loss_vae, FedAvg, exp_details
+from model.AE import autoencoder, cnn_autoencoder
+from model.VAE import vae, cnn_vae
 
 
 if __name__ == '__main__':

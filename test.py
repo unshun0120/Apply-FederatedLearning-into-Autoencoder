@@ -1,14 +1,12 @@
 import torch
 import time
-import random
-import numpy as np
 
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-import matplotlib.pyplot as plt
 
-from model import autoencoder, cnn_autoencoder, vae, cnn_vae
+from model.AE import autoencoder, cnn_autoencoder
+from model.VAE import vae, cnn_vae
 from argument import args_parser
 from dataset import get_test_dataset
 from utils import loss_vae
