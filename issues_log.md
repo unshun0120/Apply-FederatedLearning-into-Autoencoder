@@ -14,13 +14,13 @@ conda create --name 新環境名字 --clone 舊環境名字
 我環境裡面有裝pytorch相關的東西, 我感覺會很麻煩所以我沒用哈哈  
 
 ## 如果要讓一個檔案呼叫到一個資料夾底下某個檔案中的class或funtion  
-e.g. 假設我要在main.py呼叫model資料夾底下AE.py黨中的autoencoder類別  
+e.g. 假設我要在main.py呼叫model資料夾底下AE.py檔案中的autoencoder類別  
 在main.py中加上
 ```python
 from model.AE import autoencoder
 ```
-另外，在model資料夾中新增 '__init__.py' 這個檔案，讓python可以辨識model這個資料夾是一模組  
-'__init__.py'中可以不用寫東西  
+另外，在model資料夾中新增 \_\_init\_\_.py 這個檔案，讓python可以辨識model這個資料夾是一模組  
+\_\_init\_\_.py中可以不用寫東西  
 e.g.  
 ![alt text](./md_images/image-4.png)
 
