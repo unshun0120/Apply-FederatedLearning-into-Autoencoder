@@ -79,7 +79,7 @@ class cnn_vae(nn.Module):
             nn.ConvTranspose2d(64, 32, kernel_size=3, stride=2, padding=1, output_padding=1),  # 7x7 -> 14x14
             nn.ReLU(),
             nn.ConvTranspose2d(32, 1, kernel_size=3, stride=2, padding=1, output_padding=1),   # 14x14 -> 28x28
-            nn.Sigmoid() 
+            nn.Tanh() 
         )
 
     def reparameterize(self, mu, logvar):

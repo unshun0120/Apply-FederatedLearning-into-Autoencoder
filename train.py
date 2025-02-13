@@ -3,6 +3,8 @@ import numpy as np
 import copy
 import pickle
 import time
+import os
+import matplotlib.pyplot as plt
 
 import torch.nn as nn
 from torch.utils.tensorboard import SummaryWriter
@@ -57,7 +59,7 @@ if __name__ == '__main__':
 
     global_weights = global_model.state_dict()
     
-    # Training
+    # ---------------------- Training ---------------------- #
     train_loss = []
 
     for epoch in range(args.global_ep): 
@@ -112,7 +114,7 @@ if __name__ == '__main__':
         print(f'Training Loss : {np.mean(np.array(train_loss))}')
         print(f'Inference Loss : {sum(inference_loss)/len(inference_loss)}\n')
     
-    # Test 
+    # ---------------------- Test ---------------------- #
     print("Testing ...")
     test_batch_size = 32
     testloader = DataLoader(test_dataset, batch_size=test_batch_size, shuffle=False)
@@ -140,11 +142,72 @@ if __name__ == '__main__':
 
             reconstruction_error += loss.item()
     
-    # Computing the Reconstruction Error
+    # Computing the Reconstruction Error 
     reconstruction_error /= len(testloader)
     print(f"Reconstruction Error: {reconstruction_error}\n")
 
-    # Saving the training loss objects:
+    # ---------------------- Generating Test 0 ~ 9 Images ---------------------- #
+    print("Generating Test Images ...")
+    if args.model == 'ae': 
+        output_dir = './output_img/Autoencoder_{}_GE[{}]_LE[{}]_B[{}]'.\
+            format(args.dataset, args.global_ep, args.local_ep, args.local_bs)
+    elif args.model == 'cnnae':
+        output_dir = './output_img/CNN_Autoencoder_{}_GE[{}]_LE[{}]_B[{}]'.\
+            format(args.dataset, args.global_ep, args.local_ep, args.local_bs)
+    elif args.model == 'vae':
+        output_dir = './output_img/VAE_{}_GE[{}]_LE[{}]_B[{}]'.\
+            format(args.dataset, args.global_ep, args.local_ep, args.local_bs)
+    elif args.model == 'cnnvae':
+        output_dir = './output_img/CNNVAE_{}_GE[{}]_LE[{}]_B[{}]'.\
+            format(args.dataset, args.global_ep, args.local_ep, args.local_bs)
+    elif args.model == 'vqvae':
+        output_dir = './output_img/VQVAE_{}_GE[{}]_LE[{}]_B[{}]'.\
+            format(args.dataset, args.global_ep, args.local_ep, args.local_bs)
+
+    os.makedirs(output_dir, exist_ok=True)
+    testloader = DataLoader(test_dataset, batch_size=1, shuffle=False)
+    saved_digits = []
+
+    with torch.no_grad():
+        for _, (images, labels) in enumerate(tqdm(testloader, colour="blue")):
+            if args.model == 'ae' or args.model == 'vae':
+                images = images.view(images.size(0), -1)
+            else:
+                pass
+
+            images = images.to(device)
+            if args.model == 'vae' or args.model == 'cnnvae': 
+                s_predicted, mu, logvar = global_model(images)
+            elif args.model == 'vqvae' :
+                s_predicted, vq_loss = global_model(images)
+            elif args.model == 'ae' or args.model == 'cnnae': 
+                s_predicted = global_model(images)
+
+            digit = labels
+            if digit not in saved_digits:
+                saved_digits.append(digit)
+                # [1, 784] -> [1, 1, 28, 28]
+                images = images.view(images.size(0), 1, 28, 28) 
+                s_predicted = s_predicted.view(s_predicted.size(0), 1, 28, 28)
+
+                fig, axes = plt.subplots(1, 2, figsize=(6, 3))
+                axes[0].imshow(images.cpu().squeeze().numpy(), cmap='gray')
+                axes[0].set_title(f'Original {digit}')
+                axes[1].imshow(s_predicted.cpu().squeeze().numpy(), cmap='gray')
+                axes[1].set_title(f'Reconstructed {digit}')
+                
+                for ax in axes:
+                    ax.axis('off')
+                
+                plt.savefig(os.path.join(output_dir, f'{digit}.png'))
+                plt.close()
+                
+            if len(saved_digits) >= 10:
+                break
+
+    print("Images(0~9) have been saved in :", output_dir, " folder")
+
+    # ---------------------- Saving the training loss objects ---------------------- #
     print(f"Saving the {model_name} model training loss objects...")
 
     if args.model == 'ae': 
@@ -166,7 +229,7 @@ if __name__ == '__main__':
     with open(file_name, 'wb') as f:
         pickle.dump([train_loss], f)
 
-    #Save the model
+    # ---------------------- Save the model ---------------------- #
     print(f"Saving the {model_name} model ...\n")
 
     if args.model == 'ae':
